@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+
+{% block title %}SkyWays Airlines - Book Your Flight{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-container">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold mb-4">Your Journey Begins with SkyWays</h1>
+        <p class="lead mb-5">Experience premium travel with comfort, convenience, and exceptional service.</p>
+        <a href="#search" class="btn btn-primary btn-lg px-4 me-md-2">Book a Flight</a>
+    </div>
+</div>
+
+<!-- Flight Search Section -->
+<section id="search" class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0">Find Your Flight</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="flight-search-form" action="{{ url_for('search_flights') }}" method="post">
+                            {{ form.hidden_tag() }}
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="departure" class="form-label">From</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-plane-departure"></i></span>
+                                        <input type="text" class="form-control" id="departure" name="departure" placeholder="City or Airport" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="destination" class="form-label">To</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-plane-arrival"></i></span>
+                                        <input type="text" class="form-control" id="destination" name="destination" placeholder="City or Airport" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="date" class="form-label">Departure Date</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                        <input type="date" class="form-control" id="date" name="date" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="passengers" class="form-label">Passengers</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-users"></i></span>
+                                        <select class="form-select" id="passengers" name="passengers">
+                                            <option value="1" selected>1 Passenger</option>
+                                            <option value="2">2 Passengers</option>
+                                            <option value="3">3 Passengers</option>
+                                            <option value="4">4 Passengers</option>
+                                            <option value="5">5 Passengers</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-12 text-center mt-4">
+                                    <button type="submit" class="btn btn-primary btn-lg px-4">Search Flights</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">Why Choose SkyWays Airlines</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-chair fa-3x text-sky"></i>
+                        </div>
+                        <h4 class="card-title">Comfortable Seating</h4>
+                        <p class="card-text">Enjoy spacious seating with extra legroom and reclining options for maximum comfort during your journey.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-utensils fa-3x text-sky"></i>
+                        </div>
+                        <h4 class="card-title">Premium Dining</h4>
+                        <p class="card-text">Indulge in gourmet meals and snacks crafted by our expert culinary team. Special dietary options available.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-headset fa-3x text-sky"></i>
+                        </div>
+                        <h4 class="card-title">Exceptional Service</h4>
+                        <p class="card-text">Our cabin crew is dedicated to making your flight enjoyable with attentive and personalized service.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular Destinations -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Popular Destinations</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card bg-dark text-white destination-card">
+                    <img src="https://images.unsplash.com/photo-1502906179107-9a5ca87e0a19" class="card-img" alt="Airplane Interior">
+                    <div class="card-img-overlay d-flex flex-column justify-content-end" style="background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);">
+                        <h4 class="card-title">New York</h4>
+                        <p class="card-text">Explore the vibrant city that never sleeps</p>
+                        <a href="{{ url_for('search_flights') }}" class="btn btn-primary mt-2">Book Now</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-dark text-white destination-card">
+                    <img src="https://images.unsplash.com/photo-1483450388369-9ed95738483c" class="card-img" alt="Airplane Interior">
+                    <div class="card-img-overlay d-flex flex-column justify-content-end" style="background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);">
+                        <h4 class="card-title">Los Angeles</h4>
+                        <p class="card-text">Sun, beach, and entertainment await you</p>
+                        <a href="{{ url_for('search_flights') }}" class="btn btn-primary mt-2">Book Now</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-dark text-white destination-card">
+                    <img src="https://images.unsplash.com/photo-1585585828599-461a0419b788" class="card-img" alt="Airport Terminal">
+                    <div class="card-img-overlay d-flex flex-column justify-content-end" style="background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);">
+                        <h4 class="card-title">Miami</h4>
+                        <p class="card-text">Experience the magic of tropical paradise</p>
+                        <a href="{{ url_for('search_flights') }}" class="btn btn-primary mt-2">Book Now</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">What Our Customers Say</h2>
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <div class="card">
+                                <div class="card-body text-center p-5">
+                                    <p class="lead mb-4">"The seat selection feature was so easy to use! I got my preferred window seat and enjoyed the stunning views throughout my flight."</p>
+                                    <div class="d-flex justify-content-center mb-3">
+                                        <i class="fas fa-star text-warning"></i>
+                                        <i class="fas fa-star text-warning"></i>
+                                        <i class="fas fa-star text-warning"></i>
+                                        <i class="fas fa-star text-warning"></i>
+                                        <i class="fas fa-star text-warning"></i>
+                                    </div>
+                                    <h5 class="mb-1">Sarah Johnson</h5>
+                                    <p class="text-muted">Frequent Flyer</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="carousel-item">
+                            <div class="card">
+                                <div class="card-body text-center p-5">
+                                    <p class="lead mb-4">"I loved being able to select my snacks before the flight. The premium sandwich was delicious and made my journey so much more enjoyable."</p>
+                                    <div class="d-flex justify-content-center mb-3">
+                                        <i class="fas fa-star text-warning"></i>
+                                        <i class="fas fa-star text-warning"></i>
+                                        <i class="fas fa-star text-warning"></i>
+                                        <i class="fas fa-star text-warning"></i>
+                                        <i class="fas fa-star text-warning"></i>
+                                    </div>
+                                    <h5 class="mb-1">Michael Chen</h5>
+                                    <p class="text-muted">Business Traveler</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="carousel-item">
+                            <div class="card">
+                                <div class="card-body text-center p-5">
+                                    <p class="lead mb-4">"The booking process was seamless, and the payment was secure. SkyWays Airlines has the most user-friendly flight booking system I've ever used!"</p>
+                                    <div class="d-flex justify-content-center mb-3">
+                                        <i class="fas fa-star text-warning"></i>
+                                        <i class="fas fa-star text-warning"></i>
+                                        <i class="fas fa-star text-warning"></i>
+                                        <i class="fas fa-star text-warning"></i>
+                                        <i class="fas fa-star text-warning"></i>
+                                    </div>
+                                    <h5 class="mb-1">Emma Rodriguez</h5>
+                                    <p class="text-muted">First-time Flyer</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-5 text-center">
+    <div class="container">
+        <h2 class="mb-4">Ready to Book Your Next Adventure?</h2>
+        <p class="lead mb-4">Experience the SkyWays difference with our comfortable seats, delicious snacks, and exceptional service.</p>
+        <a href="#search" class="btn btn-primary btn-lg px-4">Book Now</a>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,216 @@
+/* Custom styles for SkyWays Airlines */
+:root {
+    /* Airline theme colors */
+    --sky-blue: #1a73e8;
+    --sky-blue-light: #d0e3ff;
+    --navy: #0d47a1;
+    --cloud-white: #f8f9fa;
+    --silver: #e9ecef;
+    --midnight: #212529;
+}
+
+/* General Styles */
+body {
+    font-family: 'Roboto', sans-serif;
+    color: var(--bs-body-color);
+    background-color: var(--bs-body-bg);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    color: var(--sky-blue);
+}
+
+.text-sky {
+    color: var(--sky-blue);
+}
+
+.bg-sky {
+    background-color: var(--sky-blue);
+}
+
+.btn-sky {
+    background-color: var(--sky-blue);
+    color: white;
+}
+
+.btn-sky:hover {
+    background-color: var(--navy);
+    color: white;
+}
+
+/* Hero Section */
+.hero-container {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                       url('https://images.unsplash.com/photo-1585585828599-461a0419b788');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    padding: 5rem 0;
+    border-radius: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Flight Cards */
+.flight-card {
+    border-radius: 8px;
+    transition: transform 0.2s;
+    margin-bottom: 1rem;
+}
+
+.flight-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Seat Map */
+.seat-map {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.seat-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.seat {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.seat.available {
+    background-color: var(--sky-blue-light);
+    color: var(--navy);
+    border: 1px solid var(--sky-blue);
+}
+
+.seat.unavailable {
+    background-color: var(--silver);
+    color: var(--midnight);
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.seat.selected {
+    background-color: var(--sky-blue);
+    color: white;
+}
+
+.seat.first-class {
+    background-color: #f8d7da;
+    border-color: #f5c2c7;
+}
+
+.seat.business-class {
+    background-color: #cff4fc;
+    border-color: #b6effb;
+}
+
+.seat.economy-class {
+    background-color: #d1e7dd;
+    border-color: #badbcc;
+}
+
+.seat.first-class.selected {
+    background-color: #dc3545;
+    color: white;
+}
+
+.seat.business-class.selected {
+    background-color: #0dcaf0;
+    color: white;
+}
+
+.seat.economy-class.selected {
+    background-color: #198754;
+    color: white;
+}
+
+/* Snack Selection */
+.snack-card {
+    border-radius: 8px;
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+.snack-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Booking Progress */
+.booking-progress {
+    margin-bottom: 2rem;
+}
+
+.step {
+    width: 2rem;
+    height: 2rem;
+    line-height: 2rem;
+    border-radius: 50%;
+    background: var(--silver);
+    color: var(--midnight);
+    text-align: center;
+    font-weight: bold;
+}
+
+.step.active {
+    background: var(--sky-blue);
+    color: white;
+}
+
+.step.completed {
+    background: var(--navy);
+    color: white;
+}
+
+/* Admin Dashboard */
+.stats-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: transform 0.2s;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Confirmation page */
+.confirmation-card {
+    border: 2px dashed var(--sky-blue);
+    border-radius: 10px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.barcode {
+    font-family: 'Libre Barcode 39', cursive;
+    font-size: 3rem;
+    letter-spacing: 2px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .seat {
+        width: 35px;
+        height: 35px;
+        font-size: 0.8rem;
+    }
+    
+    .hero-container {
+        padding: 3rem 0;
+    }
+}

@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}SkyWays Airlines - Payment{% endblock %}
+
+{% block content %}
+<!-- Booking Progress -->
+<div class="booking-progress mb-4">
+    <div class="step completed">
+        <div class="step-number">1</div>
+        <div class="step-line"></div>
+        <div class="step-label">Select Flight</div>
+    </div>
+    <div class="step completed">
+        <div class="step-number">2</div>
+        <div class="step-line"></div>
+        <div class="step-label">Choose Seat</div>
+    </div>
+    <div class="step completed">
+        <div class="step-number">3</div>
+        <div class="step-line"></div>
+        <div class="step-label">Select Snacks</div>
+    </div>
+    <div class="step active">
+        <div class="step-number">4</div>
+        <div class="step-line"></div>
+        <div class="step-label">Payment</div>
+    </div>
+    <div class="step">
+        <div class="step-number">5</div>
+        <div class="step-line"></div>
+        <div class="step-label">Confirmation</div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- Booking Summary -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Booking Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <!-- Flight Details -->
+                    <div class="col-md-6">
+                        <h6 class="mb-3">Flight Details</h6>
+                        <p class="mb-1"><strong>Flight:</strong> {{ flight.flight_number }}</p>
+                        <p class="mb-1"><strong>From:</strong> {{ flight.departure }}</p>
+                        <p class="mb-1"><strong>To:</strong> {{ flight.destination }}</p>
+                        <p class="mb-1"><strong>Date:</strong> {{ flight.date }}</p>
+                        <p class="mb-1"><strong>Time:</strong> {{ flight.time }}</p>
+                        <p class="mb-1"><strong>Duration:</strong> {{ flight.duration }}</p>
+                        <p class="mb-1"><strong>Aircraft:</strong> {{ flight.aircraft }}</p>
+                    </div>
+                    
+                    <!-- Seat Details -->
+                    <div class="col-md-6">
+                        <h6 class="mb-3">Seat Selection</h6>
+                        <p class="mb-1"><strong>Seat Number:</strong> {{ seat_code }}</p>
+                        <p class="mb-1"><strong>Seat Price:</strong> ${{ "%.2f"|format(seat_price) }}</p>
+                        
+                        <h6 class="mb-3 mt-4">Snack Selection</h6>
+                        {% if snacks %}
+                            <ul class="list-unstyled">
+                                {% for snack in snacks %}
+                                    <li class="mb-1">{{ snack.name }} x{{ snack.quantity }} - ${{ "%.2f"|format(snack.subtotal) }}</li>
+                                {% endfor %}
+                            </ul>
+                            <p class="mb-1"><strong>Snack Total:</strong> ${{ "%.2f"|format(snack_total) }}</p>
+                        {% else %}
+                            <p class="text-muted">No additional snacks selected</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <!-- Price Breakdown -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <h6 class="mb-3">Price Breakdown</h6>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Base Fare:</span>
+                            <span>${{ "%.2f"|format(flight.price) }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Seat Selection:</span>
+                            <span>${{ "%.2f"|format(seat_price) }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Snacks:</span>
+                            <span>${{ "%.2f"|format(snack_total) }}</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fw-bold">Total:</span>
+                            <span class="fw-bold">${{ "%.2f"|format(total) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <!-- Payment Information -->
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Payment</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-4">You will be redirected to our secure payment processor to complete your booking.</p>
+                
+                <div class="alert alert-info mb-4">
+                    <i class="fas fa-info-circle me-2"></i> Your card will be charged ${{ "%.2f"|format(total) }}
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="mb-3">Accepted Payment Methods</h6>
+                    <div class="d-flex justify-content-between">
+                        <i class="fab fa-cc-visa fa-2x text-primary"></i>
+                        <i class="fab fa-cc-mastercard fa-2x text-primary"></i>
+                        <i class="fab fa-cc-amex fa-2x text-primary"></i>
+                        <i class="fab fa-cc-discover fa-2x text-primary"></i>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="mb-3">Secure Checkout</h6>
+                    <p class="small text-muted">
+                        <i class="fas fa-lock me-2"></i> All payment information is encrypted and processed securely.
+                    </p>
+                </div>
+                
+                <form action="{{ url_for('create_checkout_session') }}" method="post">
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            Proceed to Payment <i class="fas fa-lock ms-2"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

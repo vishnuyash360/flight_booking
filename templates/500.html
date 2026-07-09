@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}SkyWays Airlines - Server Error{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center text-center py-5">
+    <div class="col-md-8">
+        <h1 class="display-1 text-danger">500</h1>
+        <h2 class="mb-4">Internal Server Error</h2>
+        <p class="lead mb-5">We're experiencing some turbulence! Our team has been notified and is working to fix the issue.</p>
+        
+        <div style="height: 200px; position: relative;" class="mb-5">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" style="height: 100%;" class="text-danger">
+                <path fill="currentColor" d="M256 0c-35 0-64 59.5-64 93.7v84.6L8.1 283.4c-5 2.8-8.1 8.2-8.1 13.9v65.5c0 10.6 10.2 18.3 20.4 15.4l171.6-49.1V416c0 12.1 6.8 23.2 17.7 28.6l14.4 7.2c15.3 7.6 33.1 7.6 48.4 0l14.4-7.2c10.8-5.4 17.7-16.5 17.7-28.6V328.9l171.6 49.1c10.2 2.9 20.4-4.8 20.4-15.4V297.3c0-5.7-3.1-11.1-8.1-13.9l-183.9-105.1V93.7C304 59.5 275 0 240 0h16z"/>
+            </svg>
+        </div>
+        
+        <p class="mb-4">Please try again later or contact our support team if the problem persists.</p>
+        
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                <i class="fas fa-home me-2"></i> Return Home
+            </a>
+            <button onclick="window.location.reload()" class="btn btn-outline-primary">
+                <i class="fas fa-sync-alt me-2"></i> Try Again
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

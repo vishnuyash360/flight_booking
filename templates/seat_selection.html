@@ -1,0 +1,340 @@
+{% extends 'base.html' %}
+
+{% block title %}SkyWays Airlines - Select Your Seat{% endblock %}
+
+{% block extra_css %}
+<style>
+    .airplane {
+        background-image: url('https://images.unsplash.com/photo-1517637633369-e4cc28755e01');
+        background-size: cover;
+        background-position: center;
+        padding: 20px;
+        border-radius: 10px;
+        position: relative;
+    }
+    
+    .airplane::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.7);
+        border-radius: 10px;
+    }
+    
+    .booking-progress {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+    }
+    
+    .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .step-number {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 8px;
+    }
+    
+    .step.active .step-number {
+        background-color: var(--bs-primary);
+        color: white;
+    }
+    
+    .step.completed .step-number {
+        background-color: var(--bs-success);
+        color: white;
+    }
+    
+    .step:not(.active):not(.completed) .step-number {
+        background-color: var(--bs-secondary);
+    }
+    
+    .step-line {
+        position: absolute;
+        top: 15px;
+        height: 2px;
+        background-color: var(--bs-secondary);
+        width: 100%;
+        left: -50%;
+        z-index: -1;
+    }
+    
+    .step:first-child .step-line {
+        display: none;
+    }
+    
+    .step.completed .step-line {
+        background-color: var(--bs-success);
+    }
+    
+    .seat-legend-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 4px;
+    }
+    
+    .seat-legend-item:hover, .seat-legend-item.selected {
+        background-color: rgba(var(--bs-primary-rgb), 0.1);
+    }
+    
+    .seat-legend-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        margin-right: 8px;
+    }
+    
+    .seat-details-card {
+        position: sticky;
+        top: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Booking Progress -->
+<div class="booking-progress mb-4">
+    <div class="step completed">
+        <div class="step-number">1</div>
+        <div class="step-line"></div>
+        <div class="step-label">Select Flight</div>
+    </div>
+    <div class="step active">
+        <div class="step-number">2</div>
+        <div class="step-line"></div>
+        <div class="step-label">Choose Seat</div>
+    </div>
+    <div class="step">
+        <div class="step-number">3</div>
+        <div class="step-line"></div>
+        <div class="step-label">Select Snacks</div>
+    </div>
+    <div class="step">
+        <div class="step-number">4</div>
+        <div class="step-line"></div>
+        <div class="step-label">Payment</div>
+    </div>
+    <div class="step">
+        <div class="step-number">5</div>
+        <div class="step-line"></div>
+        <div class="step-label">Confirmation</div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- Flight Details -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Flight {{ flight.flight_number }}</h5>
+                <span class="badge bg-light text-dark">{{ flight.status }}</span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-5 text-center">
+                        <h5>{{ flight.departure }}</h5>
+                        <p class="text-muted mb-0">{{ flight.time }}</p>
+                    </div>
+                    <div class="col-2 text-center d-flex flex-column align-items-center justify-content-center">
+                        <div class="flight-path">
+                            <i class="fas fa-plane text-primary"></i>
+                        </div>
+                        <small class="text-muted">{{ flight.duration }}</small>
+                    </div>
+                    <div class="col-5 text-center">
+                        <h5>{{ flight.destination }}</h5>
+                        <p class="text-muted mb-0">{{ flight.date }}</p>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="mb-0"><i class="fas fa-plane me-2"></i>{{ flight.aircraft }}</p>
+                    </div>
+                    <div>
+                        <h4 class="text-primary mb-0">Base Price: ${{ "%.2f"|format(flight.price) }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seat Selection -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Select Your Seat</h5>
+            </div>
+            <div class="card-body">
+                <p class="lead mb-4">Please select your preferred seat from the seat map below.</p>
+                
+                <!-- Seat Legend -->
+                <div class="d-flex flex-wrap mb-4 gap-3">
+                    <div class="seat-legend-item" data-class="First">
+                        <div class="seat-legend-color bg-danger"></div>
+                        <span>First Class</span>
+                    </div>
+                    <div class="seat-legend-item" data-class="Business">
+                        <div class="seat-legend-color bg-info"></div>
+                        <span>Business Class</span>
+                    </div>
+                    <div class="seat-legend-item" data-class="Economy">
+                        <div class="seat-legend-color bg-success"></div>
+                        <span>Economy Class</span>
+                    </div>
+                    <div class="seat-legend-item">
+                        <div class="seat-legend-color bg-secondary"></div>
+                        <span>Unavailable</span>
+                    </div>
+                </div>
+                
+                <div class="airplane p-4">
+                    <div class="seat-map position-relative">
+                        {% for row in available_seats %}
+                            <div class="row mb-3">
+                                <div class="col-1 text-center text-white d-flex align-items-center justify-content-center">
+                                    <span>{{ row.row }}</span>
+                                </div>
+                                <div class="col-11">
+                                    <div class="d-flex justify-content-between">
+                                        <div class="d-flex gap-2">
+                                            {% for seat in row.seats[:3] %}
+                                                <div class="seat 
+                                                    {% if seat.available %}available{% else %}unavailable{% endif %} 
+                                                    {{ seat.class|lower }}-class"
+                                                    {% if seat.available %}
+                                                    data-code="{{ seat.code }}"
+                                                    data-price="{{ seat.price }}"
+                                                    data-class="{{ seat.class }}"
+                                                    {% endif %}>
+                                                    {{ seat.code }}
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            {% for seat in row.seats[3:] %}
+                                                <div class="seat 
+                                                    {% if seat.available %}available{% else %}unavailable{% endif %} 
+                                                    {{ seat.class|lower }}-class"
+                                                    {% if seat.available %}
+                                                    data-code="{{ seat.code }}"
+                                                    data-price="{{ seat.price }}"
+                                                    data-class="{{ seat.class }}"
+                                                    {% endif %}>
+                                                    {{ seat.code }}
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <!-- Seat Details -->
+        <div id="seat-details" class="d-none mb-4 seat-details-card">
+            <!-- This will be populated by JavaScript -->
+        </div>
+        
+        <!-- Selected Seat Summary -->
+        <div class="card seat-details-card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Booking Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6>Flight:</h6>
+                    <p class="mb-0">{{ flight.flight_number }} - {{ flight.departure }} to {{ flight.destination }}</p>
+                    <p class="mb-0">{{ flight.date }}, {{ flight.time }}</p>
+                </div>
+                <div class="mb-3">
+                    <h6>Base Price:</h6>
+                    <p>${{ "%.2f"|format(flight.price) }}</p>
+                </div>
+                <div class="mb-3">
+                    <h6>Selected Seat:</h6>
+                    <p id="selected-seat-display">None selected</p>
+                </div>
+                <div class="mb-3">
+                    <h6>Seat Class:</h6>
+                    <p id="seat-class">-</p>
+                </div>
+                <div class="mb-3">
+                    <h6>Seat Price:</h6>
+                    <p id="seat-price">$0.00</p>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between mb-3">
+                    <h6>Estimated Total:</h6>
+                    <h6 id="estimated-total">${{ "%.2f"|format(flight.price) }}</h6>
+                </div>
+                
+                <form action="{{ url_for('select_snacks', flight_id=flight.id, seat_code='SEAT_PLACEHOLDER') }}" method="get" id="seat-form">
+                    <input type="hidden" id="selected-seat" name="selected_seat" value="">
+                    <div class="d-grid">
+                        <button type="submit" id="next-step-button" class="btn btn-primary" disabled>Continue to Snack Selection</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/seatmap.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const seatForm = document.getElementById('seat-form');
+        const selectedSeatInput = document.getElementById('selected-seat');
+        const nextStepButton = document.getElementById('next-step-button');
+        const selectedSeatDisplay = document.getElementById('selected-seat-display');
+        const seatPriceElement = document.getElementById('seat-price');
+        const estimatedTotalElement = document.getElementById('estimated-total');
+        const basePrice = {{ flight.price }};
+        
+        // Add click listeners to seats
+        document.querySelectorAll('.seat.available').forEach(seat => {
+            seat.addEventListener('click', function() {
+                const seatCode = this.dataset.code;
+                const seatPrice = parseFloat(this.dataset.price);
+                
+                // Update the form action URL with the selected seat
+                const formAction = seatForm.getAttribute('action');
+                seatForm.setAttribute('action', formAction.replace('SEAT_PLACEHOLDER', seatCode));
+                
+                // Update the hidden input
+                selectedSeatInput.value = seatCode;
+                
+                // Update display
+                selectedSeatDisplay.textContent = seatCode;
+                
+                // Enable continue button
+                nextStepButton.disabled = false;
+                
+                // Update total
+                const total = basePrice + seatPrice;
+                estimatedTotalElement.textContent = `$${total.toFixed(2)}`;
+            });
+        });
+    });
+</script>
+{% endblock %}

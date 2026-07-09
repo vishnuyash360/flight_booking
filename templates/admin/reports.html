@@ -1,0 +1,300 @@
+{% extends 'base.html' %}
+
+{% block title %}SkyWays Airlines - Admin Reports{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stats-card {
+        border-radius: 10px;
+        border: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .chart-container {
+        position: relative;
+        height: 300px;
+        margin-bottom: 2rem;
+    }
+    
+    .report-filters {
+        background-color: rgba(var(--bs-primary-rgb), 0.05);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .sort-asc:after {
+        content: " ↑";
+    }
+    
+    .sort-desc:after {
+        content: " ↓";
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="mb-1">Monthly Reports</h1>
+        <p class="text-muted">Detailed analytics and statistics for SkyWays Airlines</p>
+    </div>
+    <div>
+        <button class="btn btn-primary" onclick="window.print()">
+            <i class="fas fa-download me-2"></i> Export Report
+        </button>
+    </div>
+</div>
+
+<!-- Report Filters -->
+<div class="report-filters mb-4">
+    <div class="row">
+        <div class="col-md-3 mb-3 mb-md-0">
+            <label class="form-label">Date Range</label>
+            <select class="form-select" id="report-date-range">
+                <option selected>This Month</option>
+                <option>Last Month</option>
+                <option>Last 3 Months</option>
+                <option>Custom Range</option>
+            </select>
+        </div>
+        <div class="col-md-3 mb-3 mb-md-0">
+            <label class="form-label">Filter by Route</label>
+            <select class="form-select" id="report-route">
+                <option selected>All Routes</option>
+                {% for stat in monthly_stats %}
+                    <option>{{ stat.route }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3 mb-3 mb-md-0">
+            <label class="form-label">Sort By</label>
+            <select class="form-select" id="report-sort">
+                <option selected>Revenue (High to Low)</option>
+                <option>Revenue (Low to High)</option>
+                <option>Bookings (High to Low)</option>
+                <option>Bookings (Low to High)</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <button class="btn btn-primary w-100" id="apply-filters">
+                <i class="fas fa-filter me-2"></i> Apply Filters
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stats-card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Total Bookings</h5>
+                <h2 class="display-5 mb-0">{{ monthly_stats|sum(attribute='bookings') }}</h2>
+                <p class="text-muted mb-0">This month</p>
+                <div class="progress mt-3" style="height: 6px;">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stats-card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Total Revenue</h5>
+                <h2 class="display-5 mb-0">${{ "%.2f"|format(monthly_stats|sum(attribute='revenue')) }}</h2>
+                <p class="text-muted mb-0">This month</p>
+                <div class="progress mt-3" style="height: 6px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: 82%" aria-valuenow="82" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stats-card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Snack Revenue</h5>
+                <h2 class="display-5 mb-0">${{ "%.2f"|format(monthly_stats|sum(attribute='snacks_revenue')) }}</h2>
+                <p class="text-muted mb-0">This month</p>
+                <div class="progress mt-3" style="height: 6px;">
+                    <div class="progress-bar bg-info" role="progressbar" style="width: 68%" aria-valuenow="68" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stats-card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Average Booking Value</h5>
+                {% set total_bookings = monthly_stats|sum(attribute='bookings') %}
+                {% set avg_value = (monthly_stats|sum(attribute='revenue') / total_bookings) if total_bookings > 0 else 0 %}
+                <h2 class="display-5 mb-0">${{ "%.2f"|format(avg_value) }}</h2>
+                <p class="text-muted mb-0">Per booking</p>
+                <div class="progress mt-3" style="height: 6px;">
+                    <div class="progress-bar bg-warning" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Bookings by Flight</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="booking-chart"></canvas>
+                </div>
+                
+                <!-- Hidden data for chart -->
+                <div id="booking-chart-data" class="d-none" 
+                     data-bookings='{
+                        "labels": [{% for stat in monthly_stats %}"{{ stat.flight_number }}",{% endfor %}],
+                        "data": [{% for stat in monthly_stats %}{{ stat.bookings }},{% endfor %}]
+                     }'>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Revenue by Flight</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="revenue-chart"></canvas>
+                </div>
+                
+                <!-- Hidden data for chart -->
+                <div id="revenue-chart-data" class="d-none" 
+                     data-revenue='{
+                        "labels": [{% for stat in monthly_stats %}"{{ stat.flight_number }}",{% endfor %}],
+                        "data": [{% for stat in monthly_stats %}{{ stat.revenue }},{% endfor %}]
+                     }'>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Report Table -->
+<div class="card mb-4">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Monthly Flight Performance</h5>
+        <div class="input-group" style="width: 250px;">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+            <input type="text" class="form-control" id="table-search" placeholder="Search...">
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" id="monthly-report-table">
+                <thead>
+                    <tr>
+                        <th class="sortable">Flight #</th>
+                        <th class="sortable">Route</th>
+                        <th class="sortable">Date</th>
+                        <th class="sortable">Bookings</th>
+                        <th class="sortable">Revenue</th>
+                        <th class="sortable">Snack Revenue</th>
+                        <th class="sortable">Total Revenue</th>
+                        <th class="sortable">Avg. Booking Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in monthly_stats %}
+                        <tr>
+                            <td>{{ stat.flight_number }}</td>
+                            <td>{{ stat.route }}</td>
+                            <td>{{ stat.date }}</td>
+                            <td>{{ stat.bookings }}</td>
+                            <td>${{ "%.2f"|format(stat.revenue - stat.snacks_revenue) }}</td>
+                            <td>${{ "%.2f"|format(stat.snacks_revenue) }}</td>
+                            <td>${{ "%.2f"|format(stat.revenue) }}</td>
+                            <td>${{ "%.2f"|format(stat.revenue / stat.bookings if stat.bookings > 0 else 0) }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Revenue Breakdown -->
+<div class="card mb-4">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">Revenue Breakdown</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <canvas id="snack-revenue-chart"></canvas>
+                </div>
+                
+                <!-- Hidden data for chart -->
+                <div id="snack-revenue-chart-data" class="d-none" 
+                     data-snacks='{
+                        "labels": ["Base Fare", "Seat Selection", "Snacks & Beverages"],
+                        "data": [
+                            {{ monthly_stats|sum(attribute='revenue') - monthly_stats|sum(attribute='snacks_revenue') - 5000 }},
+                            5000,
+                            {{ monthly_stats|sum(attribute='snacks_revenue') }}
+                        ]
+                     }'>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h5 class="mb-3">Revenue Sources</h5>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Source</th>
+                                <th>Amount</th>
+                                <th>Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set total_revenue = monthly_stats|sum(attribute='revenue') %}
+                            {% set base_fare = total_revenue - monthly_stats|sum(attribute='snacks_revenue') - 5000 %}
+                            {% set seat_revenue = 5000 %}
+                            {% set snack_revenue = monthly_stats|sum(attribute='snacks_revenue') %}
+                            <tr>
+                                <td>Base Fare</td>
+                                <td>${{ "%.2f"|format(base_fare) }}</td>
+                                <td>{{ "%.1f"|format((base_fare / total_revenue) * 100) }}%</td>
+                            </tr>
+                            <tr>
+                                <td>Seat Selection</td>
+                                <td>${{ "%.2f"|format(seat_revenue) }}</td>
+                                <td>{{ "%.1f"|format((seat_revenue / total_revenue) * 100) }}%</td>
+                            </tr>
+                            <tr>
+                                <td>Snacks & Beverages</td>
+                                <td>${{ "%.2f"|format(snack_revenue) }}</td>
+                                <td>{{ "%.1f"|format((snack_revenue / total_revenue) * 100) }}%</td>
+                            </tr>
+                            <tr class="table-primary">
+                                <td><strong>Total</strong></td>
+                                <td><strong>${{ "%.2f"|format(total_revenue) }}</strong></td>
+                                <td><strong>100%</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/chart.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block title %}SkyWays Airlines - Available Flights{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Available Flights</h1>
+
+<!-- Search Form -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form action="{{ url_for('search_flights') }}" method="post">
+            {{ form.hidden_tag() }}
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label for="departure" class="form-label">From</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-plane-departure"></i></span>
+                        <input type="text" class="form-control" id="departure" name="departure" placeholder="City or Airport" value="{{ request.form.get('departure', '') }}" required>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label for="destination" class="form-label">To</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-plane-arrival"></i></span>
+                        <input type="text" class="form-control" id="destination" name="destination" placeholder="City or Airport" value="{{ request.form.get('destination', '') }}" required>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label for="date" class="form-label">Departure Date</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                        <input type="date" class="form-control" id="date" name="date" value="{{ request.form.get('date', '') }}" required>
+                    </div>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Search Flights</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if flights %}
+    <div class="row">
+        {% for flight in flights %}
+            <div class="col-md-6 mb-4">
+                <div class="card flight-card h-100">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{{ flight.flight_number }}</h5>
+                        <span class="badge bg-light text-dark">{{ flight.status }}</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-5 text-center">
+                                <h5>{{ flight.departure }}</h5>
+                                <p class="text-muted mb-0">{{ flight.time }}</p>
+                            </div>
+                            <div class="col-2 text-center d-flex flex-column align-items-center justify-content-center">
+                                <div class="flight-path">
+                                    <i class="fas fa-plane text-primary"></i>
+                                </div>
+                                <small class="text-muted">{{ flight.duration }}</small>
+                            </div>
+                            <div class="col-5 text-center">
+                                <h5>{{ flight.destination }}</h5>
+                                <p class="text-muted mb-0">{{ flight.date }}</p>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="mb-0"><i class="fas fa-plane me-2"></i>{{ flight.aircraft }}</p>
+                            </div>
+                            <div>
+                                <h4 class="text-primary mb-0">${{ "%.2f"|format(flight.price) }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer d-grid">
+                        <a href="{{ url_for('select_seat', flight_id=flight.id) }}" class="btn btn-primary">Select Seat</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i> No flights found for the selected criteria. Please try different search parameters.
+    </div>
+    
+    <!-- Display popular routes -->
+    <h3 class="mt-5 mb-3">Popular Routes</h3>
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <img src="https://images.unsplash.com/photo-1527007622069-3a0241e1cd8c" class="card-img-top" alt="Airport Terminal">
+                <div class="card-body">
+                    <h5 class="card-title">Atlanta to New York</h5>
+                    <p class="card-text">Multiple flights daily</p>
+                    <form action="{{ url_for('search_flights') }}" method="post">
+                        <input type="hidden" name="departure" value="Atlanta">
+                        <input type="hidden" name="destination" value="New York">
+                        <input type="hidden" name="date" value="{{ now.strftime('%Y-%m-%d') }}">
+                        <button type="submit" class="btn btn-outline-primary">Search Flights</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <img src="https://images.unsplash.com/photo-1585585828599-461a0419b788" class="card-img-top" alt="Airport Terminal">
+                <div class="card-body">
+                    <h5 class="card-title">Chicago to Los Angeles</h5>
+                    <p class="card-text">Direct flights available</p>
+                    <form action="{{ url_for('search_flights') }}" method="post">
+                        <input type="hidden" name="departure" value="Chicago">
+                        <input type="hidden" name="destination" value="Los Angeles">
+                        <input type="hidden" name="date" value="{{ now.strftime('%Y-%m-%d') }}">
+                        <button type="submit" class="btn btn-outline-primary">Search Flights</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <img src="https://images.unsplash.com/photo-1449158743715-0a90ebb6d2d8" class="card-img-top" alt="Flight Cabin Crew">
+                <div class="card-body">
+                    <h5 class="card-title">Dallas to Miami</h5>
+                    <p class="card-text">Premium service flights</p>
+                    <form action="{{ url_for('search_flights') }}" method="post">
+                        <input type="hidden" name="departure" value="Dallas">
+                        <input type="hidden" name="destination" value="Miami">
+                        <input type="hidden" name="date" value="{{ now.strftime('%Y-%m-%d') }}">
+                        <button type="submit" class="btn btn-outline-primary">Search Flights</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

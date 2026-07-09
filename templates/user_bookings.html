@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}SkyWays Airlines - My Bookings{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1>My Bookings</h1>
+        <p class="text-muted">View and manage your flight bookings</p>
+    </div>
+</div>
+
+{% if bookings %}
+    <div class="row">
+        {% for booking in bookings %}
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 booking-card">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Booking #{{ booking.id }}</h5>
+                        <span class="badge bg-success">{{ booking.payment_status }}</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="me-4">
+                                    <i class="fas fa-plane fa-2x text-primary"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1">{{ booking.flight.flight_number }}</h5>
+                                    <p class="mb-0 text-muted">{{ booking.booking_date }}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-5 text-center">
+                                    <h6>{{ booking.flight.departure }}</h6>
+                                    <p class="text-muted mb-0">{{ booking.flight.time }}</p>
+                                </div>
+                                <div class="col-2 text-center d-flex flex-column align-items-center justify-content-center">
+                                    <div class="flight-path">
+                                        <i class="fas fa-plane text-primary"></i>
+                                    </div>
+                                    <small class="text-muted">{{ booking.flight.duration }}</small>
+                                </div>
+                                <div class="col-5 text-center">
+                                    <h6>{{ booking.flight.destination }}</h6>
+                                    <p class="text-muted mb-0">{{ booking.flight.date }}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-6">
+                                    <p class="mb-1"><strong>Seat:</strong> {{ booking.seat_code }}</p>
+                                    <p class="mb-1"><strong>Aircraft:</strong> {{ booking.flight.aircraft }}</p>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <p class="mb-1"><strong>Total:</strong> ${{ "%.2f"|format(booking.total) }}</p>
+                                    <p class="mb-1"><strong>Status:</strong> Confirmed</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if booking.snacks %}
+                            <div class="mb-3">
+                                <h6 class="mb-2">Selected Snacks</h6>
+                                <div class="small">
+                                    {% for snack in booking.snacks %}
+                                        <span class="badge bg-light text-dark me-2 mb-1">{{ snack.name }} x{{ snack.quantity }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-outline-primary" onclick="window.location.href='#'">
+                                <i class="fas fa-print me-2"></i> Print
+                            </button>
+                            <button class="btn btn-primary" onclick="window.location.href='#'">
+                                <i class="fas fa-info-circle me-2"></i> View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <div class="mb-4">
+                <i class="fas fa-ticket-alt fa-4x text-secondary"></i>
+            </div>
+            <h3>No Bookings Found</h3>
+            <p class="text-muted mb-4">You haven't made any bookings yet. Start by searching for flights!</p>
+            <a href="{{ url_for('search_flights') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-search me-2"></i> Search Flights
+            </a>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

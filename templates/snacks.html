@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+
+{% block title %}SkyWays Airlines - Select Snacks{% endblock %}
+
+{% block content %}
+<!-- Booking Progress -->
+<div class="booking-progress mb-4">
+    <div class="step completed">
+        <div class="step-number">1</div>
+        <div class="step-line"></div>
+        <div class="step-label">Select Flight</div>
+    </div>
+    <div class="step completed">
+        <div class="step-number">2</div>
+        <div class="step-line"></div>
+        <div class="step-label">Choose Seat</div>
+    </div>
+    <div class="step active">
+        <div class="step-number">3</div>
+        <div class="step-line"></div>
+        <div class="step-label">Select Snacks</div>
+    </div>
+    <div class="step">
+        <div class="step-number">4</div>
+        <div class="step-line"></div>
+        <div class="step-label">Payment</div>
+    </div>
+    <div class="step">
+        <div class="step-number">5</div>
+        <div class="step-line"></div>
+        <div class="step-label">Confirmation</div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- Flight Details -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Flight {{ flight.flight_number }}</h5>
+                <span class="badge bg-light text-dark">{{ flight.status }}</span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-5 text-center">
+                        <h5>{{ flight.departure }}</h5>
+                        <p class="text-muted mb-0">{{ flight.time }}</p>
+                    </div>
+                    <div class="col-2 text-center d-flex flex-column align-items-center justify-content-center">
+                        <div class="flight-path">
+                            <i class="fas fa-plane text-primary"></i>
+                        </div>
+                        <small class="text-muted">{{ flight.duration }}</small>
+                    </div>
+                    <div class="col-5 text-center">
+                        <h5>{{ flight.destination }}</h5>
+                        <p class="text-muted mb-0">{{ flight.date }}</p>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="mb-0"><i class="fas fa-plane me-2"></i>{{ flight.aircraft }}</p>
+                    </div>
+                    <div>
+                        <p class="mb-0">Selected Seat: <span class="badge bg-primary">{{ seat }}</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Snack Selection -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Select Your In-Flight Snacks</h5>
+            </div>
+            <div class="card-body">
+                <p class="lead mb-4">Choose from our selection of premium snacks to enjoy during your flight.</p>
+
+                <form action="{{ url_for('review_booking') }}" method="post">
+                    <div class="row g-4">
+                        {% for snack in snacks %}
+                            <div class="col-md-6">
+                                <div class="card snack-card h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title mb-3">{{ snack.name }}</h5>
+                                        <p class="card-text">{{ snack.description }}</p>
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <span class="fw-bold text-primary">${{ "%.2f"|format(snack.price) }}</span>
+                                            <div class="input-group w-50">
+                                                <button class="btn btn-outline-secondary decrement-btn" type="button">-</button>
+                                                <input type="number" class="form-control text-center snack-quantity" 
+                                                       id="snack_{{ snack.id }}" name="snack_{{ snack.id }}" 
+                                                       min="0" value="0"
+                                                       data-snack-id="{{ snack.id }}"
+                                                       data-price="{{ snack.price }}">
+                                                <button class="btn btn-outline-secondary increment-btn" type="button">+</button>
+                                            </div>
+                                        </div>
+                                        <div class="text-end">
+                                            <span>Subtotal: <span id="subtotal-{{ snack.id }}" class="fw-bold">$0.00</span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">Review & Continue</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <!-- Snack Selection Summary -->
+        <div class="card position-sticky" style="top: 20px;">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Your Selection</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6>Selected Seat:</h6>
+                    <p class="mb-0">{{ seat }}</p>
+                </div>
+                <hr>
+                <div class="mb-3">
+                    <h6>Selected Snacks:</h6>
+                    <div id="selected-snacks-summary">
+                        <p class="text-muted">No snacks selected yet</p>
+                    </div>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <h6>Snack Total:</h6>
+                    <h6 id="snack-total">$0.00</h6>
+                </div>
+                
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-info-circle me-2"></i> Complimentary water and a small snack are included with all flights.
+                </div>
+                
+                <div class="alert alert-success mt-3">
+                    <i class="fas fa-utensils me-2"></i> First Class and Business Class passengers receive premium meal service at no additional charge.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const decrementButtons = document.querySelectorAll('.decrement-btn');
+        const incrementButtons = document.querySelectorAll('.increment-btn');
+        const quantityInputs = document.querySelectorAll('.snack-quantity');
+        const selectedSnacksSummary = document.getElementById('selected-snacks-summary');
+        
+        // Add event listeners for quantity buttons
+        decrementButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const input = this.parentNode.querySelector('input');
+                const currentValue = parseInt(input.value) || 0;
+                if (currentValue > 0) {
+                    input.value = currentValue - 1;
+                    updateSnackSummary();
+                }
+            });
+        });
+        
+        incrementButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const input = this.parentNode.querySelector('input');
+                const currentValue = parseInt(input.value) || 0;
+                input.value = currentValue + 1;
+                updateSnackSummary();
+            });
+        });
+        
+        quantityInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                updateSnackSummary();
+            });
+        });
+        
+        function updateSnackSummary() {
+            let totalPrice = 0;
+            let hasSelectedSnacks = false;
+            let summaryHTML = '';
+            
+            quantityInputs.forEach(input => {
+                const quantity = parseInt(input.value) || 0;
+                if (quantity > 0) {
+                    hasSelectedSnacks = true;
+                    const snackId = input.getAttribute('data-snack-id');
+                    const price = parseFloat(input.getAttribute('data-price'));
+                    const subtotal = price * quantity;
+                    totalPrice += subtotal;
+                    
+                    // Update subtotal display
+                    const subtotalElement = document.getElementById(`subtotal-${snackId}`);
+                    if (subtotalElement) {
+                        subtotalElement.textContent = `$${subtotal.toFixed(2)}`;
+                    }
+                    
+                    // Add to summary
+                    const snackName = document.querySelector(`.card-title[id="snack-title-${snackId}"]`) || 
+                                     input.closest('.card').querySelector('.card-title');
+                    summaryHTML += `
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>${snackName.textContent} x${quantity}</span>
+                            <span>$${subtotal.toFixed(2)}</span>
+                        </div>
+                    `;
+                }
+            });
+            
+            // Update summary display
+            if (hasSelectedSnacks) {
+                selectedSnacksSummary.innerHTML = summaryHTML;
+            } else {
+                selectedSnacksSummary.innerHTML = '<p class="text-muted">No snacks selected yet</p>';
+            }
+            
+            // Update total
+            document.getElementById('snack-total').textContent = `$${totalPrice.toFixed(2)}`;
+        }
+    });
+</script>
+{% endblock %}

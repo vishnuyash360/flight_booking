@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+
+{% block title %}SkyWays Airlines - Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stats-card {
+        border-radius: 10px;
+        border: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .stats-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+    
+    .chart-container {
+        position: relative;
+        height: 300px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="mb-1">Admin Dashboard</h1>
+        <p class="text-muted">Welcome to the SkyWays Airlines management portal</p>
+    </div>
+    <div>
+        <div class="btn-group">
+            <button type="button" class="btn btn-outline-primary">
+                <i class="fas fa-calendar-day me-2"></i> Today
+            </button>
+            <button type="button" class="btn btn-primary">
+                <i class="fas fa-calendar-week me-2"></i> This Month
+            </button>
+            <button type="button" class="btn btn-outline-primary">
+                <i class="fas fa-calendar me-2"></i> This Year
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stats-card h-100">
+            <div class="card-body">
+                <div class="stats-icon bg-primary bg-opacity-25 text-primary">
+                    <i class="fas fa-ticket-alt fa-2x"></i>
+                </div>
+                <h5 class="card-title">Total Bookings</h5>
+                <h2 class="display-5 mb-0">{{ stats|length }}</h2>
+                <p class="text-muted mb-0">This month</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stats-card h-100">
+            <div class="card-body">
+                <div class="stats-icon bg-success bg-opacity-25 text-success">
+                    <i class="fas fa-dollar-sign fa-2x"></i>
+                </div>
+                <h5 class="card-title">Total Revenue</h5>
+                <h2 class="display-5 mb-0">${{ "%.2f"|format(stats|sum(attribute='revenue')) }}</h2>
+                <p class="text-muted mb-0">This month</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stats-card h-100">
+            <div class="card-body">
+                <div class="stats-icon bg-info bg-opacity-25 text-info">
+                    <i class="fas fa-utensils fa-2x"></i>
+                </div>
+                <h5 class="card-title">Snack Revenue</h5>
+                <h2 class="display-5 mb-0">${{ "%.2f"|format(stats|sum(attribute='snacks_revenue')) }}</h2>
+                <p class="text-muted mb-0">This month</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stats-card h-100">
+            <div class="card-body">
+                <div class="stats-icon bg-warning bg-opacity-25 text-warning">
+                    <i class="fas fa-plane fa-2x"></i>
+                </div>
+                <h5 class="card-title">Active Flights</h5>
+                <h2 class="display-5 mb-0">{{ stats|map(attribute='flight_number')|unique|list|length }}</h2>
+                <p class="text-muted mb-0">This month</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="row mb-4">
+    <div class="col-md-8 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Booking & Revenue Overview</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="revenue-chart"></canvas>
+                </div>
+                
+                <!-- Hidden data for chart -->
+                <div id="revenue-chart-data" class="d-none" 
+                     data-revenue='{
+                        "labels": [{% for stat in stats %}"{{ stat.flight_number }}",{% endfor %}],
+                        "data": [{% for stat in stats %}{{ stat.revenue }},{% endfor %}]
+                     }'>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Snack Revenue Distribution</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="snack-revenue-chart"></canvas>
+                </div>
+                
+                <!-- Hidden data for chart -->
+                <div id="snack-revenue-chart-data" class="d-none" 
+                     data-snacks='{
+                        "labels": [{% for stat in stats %}"{{ stat.flight_number }}",{% endfor %}],
+                        "data": [{% for stat in stats %}{{ stat.snacks_revenue }},{% endfor %}]
+                     }'>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Bookings -->
+<div class="card mb-4">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Recent Bookings</h5>
+        <a href="{{ url_for('admin_reports') }}" class="btn btn-sm btn-primary">View All</a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Flight</th>
+                        <th>Route</th>
+                        <th>Date</th>
+                        <th>Bookings</th>
+                        <th>Revenue</th>
+                        <th>Snack Revenue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in stats[:5] %}
+                        <tr>
+                            <td>{{ stat.flight_number }}</td>
+                            <td>{{ stat.route }}</td>
+                            <td>{{ stat.date }}</td>
+                            <td>{{ stat.bookings }}</td>
+                            <td>${{ "%.2f"|format(stat.revenue) }}</td>
+                            <td>${{ "%.2f"|format(stat.snacks_revenue) }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Admin Quick Links -->
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-plane-departure fa-3x text-primary"></i>
+                </div>
+                <h5 class="card-title">Manage Flights</h5>
+                <p class="card-text">Add, edit or remove flights from the system</p>
+                <a href="{{ url_for('admin_flights') }}" class="btn btn-primary">Go to Flights</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-users fa-3x text-primary"></i>
+                </div>
+                <h5 class="card-title">Manage Users</h5>
+                <p class="card-text">View and manage registered users</p>
+                <a href="{{ url_for('admin_users') }}" class="btn btn-primary">Go to Users</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-chart-bar fa-3x text-primary"></i>
+                </div>
+                <h5 class="card-title">View Reports</h5>
+                <p class="card-text">Generate detailed reports and analytics</p>
+                <a href="{{ url_for('admin_reports') }}" class="btn btn-primary">Go to Reports</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/chart.js') }}"></script>
+{% endblock %}
